@@ -51,7 +51,7 @@ module.exports = {
         // 配置svg规则
         // 1. 默认svg的规则不会碰他，得排除 让其他svg规则排除的自己定义目录下svg处理
         config.module.rule('svg')
-            .exclude.add(ICONS_FOLDER)
+            .exclude.add(ICONS_FOLDER) //ICONS_FOLDER =》 icon目录
 
         // 2 新增追加 icon规则 只包含我自己的icons目录4
         config.module.rule('icons')

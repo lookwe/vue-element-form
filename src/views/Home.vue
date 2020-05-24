@@ -13,6 +13,7 @@
         <img alt="Vue logo" src="../assets/logo.png">
         <HelloWorld/>
 
+        <span v-color="'red'">icon组件：</span>
         <svg-icon icon-name="wx"></svg-icon>
         <svg-icon icon-name="denglong"></svg-icon>
         <button @click="logout">退出登录</button>
@@ -24,11 +25,6 @@
 
     export default {
         name: 'App',
-        data() {
-            return {
-                inp: '1234'
-            }
-        },
         components: {
             HelloWorld
         },

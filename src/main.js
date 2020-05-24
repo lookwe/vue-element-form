@@ -4,6 +4,7 @@ import Router from './router'
 import store from './store'
 
 import './permission'
+import './directive'
 
 Vue.config.productionTip = false
 
