@@ -1,6 +1,7 @@
 <template>
   <div class="hello">
-    <h1>{{ input }}</h1>
+    <h3>当前角色：{{ $store.getters.roles }}</h3>
+    <h2>{{ input }}</h2>
     <el-form-item label="姓名">
       <el-input v-model="input" :placeholder="placeholder"></el-input>
     </el-form-item>

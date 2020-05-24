@@ -1,5 +1,9 @@
 import Vue from 'vue'
 import App from './App.vue'
+import Router from './router'
+import store from './store'
+
+import './permission'
 
 Vue.config.productionTip = false
 
@@ -7,5 +11,7 @@ Vue.config.productionTip = false
 import "@/icons"
 
 new Vue({
+  router: Router,
+  store,
   render: function (h) { return h(App) },
-}).$mount('#app')
+}).$mount('#app');
