@@ -10,9 +10,12 @@
 * [遇坑解决]
 * [技术栈扩展]
 * [思维提升]
+* [封装组件]
+* [Vue性能优化]
 
 ## 功能需求
 
+1. [封装组件技巧经验](#封装组件技巧经验)
 1. [配置全局路径别名](#配置全局路径别名)
 1. [高级封装组件](#高级封装组件)
 1. [动态权限路由](#动态权限路由)
@@ -24,7 +27,17 @@
 1. [开发中环境配置策略](#开发中环境配置策略)
 1. [模拟数据Mock](#模拟数据Mock)
 1. [请求代理跨域](#请求代理跨域)
+1. [keep-alive及原理](#keep-alive及原理)
+1. [Vue哪些优化点](#Vue哪些优化点)
+1. [Vue模板装饰器方案](#Vue模板装饰器方案)
 
+
+### 封装组件技巧经验
+1. `$attrs` 简化多层组件之间props传值；
+2. `$listeners` 简化多层组件之间事件传递；
+3. `$Slots` 更多拓展自定义组件传值，包括自定义html元素，及对象；
+4. `props validator` 增强组件传值稳健性，可自定义业务代码效验参数；
+5. `$refs` 对外提供API 增强组件灵活度和可控性；
 
 ### 配置全局路径别名
 
@@ -149,45 +162,53 @@
  * **实现思路**：
 
 ### 动态导航菜单
+* 以routes这个数组的数据，进行元数据处理；
+* 对html结构进行数据循环，循环中通过v-if,v-else分别处理有子集和无子集的两种情况
+  * 无子集：就直接显示数据；
+  * 有子集：则通过一个函数式组件进行递归
 
 
 ### 请求服务器封装
 
 
+                               
 ### 配置全局svg组件
 
 * **对应的需求**：当我们SVG越来越多。且还方便管理，使用也非常繁琐，比如,去阿里云图库找，还需要打包出来。还要做对应处理，显得非常吃力。
 
 * **解决方案**： 利用vuecli嵌入的webpack。给他加一个svg文件处理的 `loader`。然后动态加载他们，并定义个vue组件。组件控制他的样式，大小，布局等。提前你需要svg存放在 `icon/svg` 文件目录下
-
   安装处理svg插件
-
   ```
   npm i svg-sprite-loader -D
   ```
-
   vue.config.js中配置。
-
-  ```javascript
-  chainWebpack(config) {
-      // 配置svg规则
-      // 1. 默认svg的规则不会碰他，得排除 让其他svg规则排除的自己定义目录下svg处理
-      config.module.rule('svg')
-          .exclude.add(ICONS_FOLDER) //ICONS_FOLDER =》 icon目录
-  
-      // 2 新增追加 icon规则 只包含我自己的icons目录4
-      config.module.rule('icons')
-          .test(/\.svg$/) // 自定义规则
-          .include.add(ICONS_FOLDER).end() // 指定目录 如果没有加end()会报错.这当前事例已经进入add数组去，取消退回来
-          .use('svg-sprite-loader')
-          .loader('svg-sprite-loader')
-          .options({ symbolId: 'icon-[name]'})
-  }
-  
-  // 配置成功后可以执行 vue inspct --rule [规则名]  查看是否成功
-  ```
-
   icon目录下创建index.js 。并在main.js引入；
+* 高级配置 chain Webpack
+* 案例1：开发中SVG处理
+    * 往常开发出来svg会网上下载下来，为了处理兼容性每次都需要打包，生成好几个不同的字体文件，不同浏览器输出不同字体文件
+    * 问题： 如何svg需要改变，又要需要重新下载打包 在放到项目里。变得繁琐不方便
+
+    * 解决方案1： svg-sprite-loader 组件 安装:npm i svg-sprite-loader -D
+    * vue-cli-service 主要作用就是帮你把svg打包打一个矢量图库里，每一个svg就是会里面多加一个id为他名称的资源，并且会放在网页顶部
+    * 在配置规则时候 可以使用 vue inspect --rule [svg] 规则名
+
+* 方案2:  用线上 的http资源直接饮用
+```javascript
+chainWebpack(config) {
+    // 配置svg规则
+    // 1. 默认svg的规则不会碰他，得排除 让其他svg规则排除的自己定义目录下svg处理
+    config.module.rule('svg')
+        .exclude.add(ICONS_FOLDER) //ICONS_FOLDER =》 icon目录
+
+    // 2 新增追加 icon规则 只包含我自己的icons目录4
+    config.module.rule('icons')
+        .test(/\.svg$/) // 自定义规则
+        .include.add(ICONS_FOLDER).end() // 指定目录 如果没有加end()会报错.这当前事例已经进入add数组去，取消退回来
+        .use('svg-sprite-loader')
+        .loader('svg-sprite-loader')
+        .options({ symbolId: 'icon-[name]'})
+}
+```
 
   ```javascript
   import Vue from 'vue'
@@ -204,31 +225,53 @@
   ```
 
 ### 开发中环境配置策略
-  
+* 创建3种场景环境配置文件
+    1. env.dev 开发环境
+    2. env.pro 生产环境
+    3. env.test 测试环境
+* 使用配置判断： `process.env.xxx`    
   
 ### 模拟数据Mock  
-
+* 创建一个mock文件夹，并在vue.config.js中添加配置 proxy中的else部分
+* 配置mock与真实环境api的切换 （注意，接口名与后端保持一致） 
+* 安装插件cross-env,使之在windows环境下生效； 
+* 修改pack.json的配置
 
 ### 请求代理跨域
-
-
-## Project setup
 ```
-npm install
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+### keep-alive及原理
+* [keep-alive组件](https://github.com/lookwe/mylife/tree/main/vue/%E7%BB%84%E4%BB%B6/keep-alive/README.md)
 
-### Compiles and minifies for production
-```
-npm run build
-```
+### Vue哪些优化点
+* 路由懒、图片懒加载
+* keep-alive对组件缓存处理
+* mini-css-extract-plugin插件抽离css
+* 配置optimization处理公共js代码抽离
+* 使用cdn方式引入减少项目体积
+* 小图使用base64，多张固定图片合雪碧图；
+* 前后端开启Gizp支持，减少js包体积
+* 合理应用生命中周期，做事件，监听，定时销毁任务
+* for循环合理用于Key，提高diff算法快速定位
+  * 在列表有增删操作中，主要key不能设置index
 
-### Lints and fixes files
-```
-npm run lint
-```
+### Vue模板装饰器方案
+* 本质：装饰器其实就是一个函数；
+* 作用：在不修改原始[类、方法、属性]等源代码之上。做额外扩展功能
+* 方案：``vue-property-decorator``
+* 主要API：
+    * Component: 类装饰器
+    * Emit：方法装饰器
+    * Prop: 属性装饰器
+* 访问权限:
+    * 公共：`public`
+    * 受保护: `protected` 当前类或子孙类可访问
+    * 私有：`private`
+    * 只读：`oradonly`
+
+
+
+
+
 
