@@ -12,6 +12,7 @@
 * [思维提升]
 * [封装组件]
 * [Vue性能优化]
+* [vue3]
 
 ## 功能需求
 
@@ -30,7 +31,9 @@
 1. [keep-alive及原理](#keep-alive及原理)
 1. [Vue哪些优化点](#Vue哪些优化点)
 1. [Vue模板装饰器方案](#Vue模板装饰器方案)
-
+1. [vue3Table组件优化](#vue3Table组件优化)
+1. [项目开发大数据优化](#项目开发大数据优化)
+1. [Vue项目之启动秒数开启](#Vue项目之启动秒数开启)
 
 ### 封装组件技巧经验
 1. `$attrs` 简化多层组件之间props传值；
@@ -239,10 +242,11 @@ chainWebpack(config) {
 
 ### 请求代理跨域
 ```
+
 ```
 
 ### keep-alive及原理
-* [keep-alive组件](https://github.com/lookwe/mylife/tree/main/vue/%E7%BB%84%E4%BB%B6/keep-alive/README.md)
+* [keep-alive组件](./组件/keep-alive/README.md)
 
 ### Vue哪些优化点
 * 路由懒、图片懒加载
@@ -272,6 +276,33 @@ chainWebpack(config) {
 
 
 
+### vue3Table组件优化
+* v-memo 仅供性能敏感场景的针对性优化，会用到的场景应该很少。渲染 v-for 长列表 (长度大于 1000) 可能是它最有用的场景
 
+### 项目开发大数据优化
+* 说明：在页面渲染元素超过一定数量时，浏览器交互会出现卡顿显示，原因：渲染元素过多，并且是通过v-for，以为着它原型还挂着一个响应对象， 导致内存压力大
+* 解决方案：
+  * 避免获取大数据：采用分页获取
+  * 无法避免大数据：则使用浏览器虚拟滚顶方案，只渲染视觉窗口区域元素，
+  * 避免无谓的更新：使用`v-once`让改元素只渲染显示一次，并且不需要监听响应变化，减少性能消耗
+  * 按需加载懒加载：通过用户交互行为，在决定下一步是否需要加载数据，比如图片懒加载，tree级联，树菜单等等
+  * 优化更新逻辑，使用`v-memo`缓存子树，设置条件的更新，提高复用，避免不必要的更新
 
+### Vue项目之启动秒数开启
+* 在项目开发时，启动项目是必须的，但项目庞大后，启动往往时间越长，亲自见过最长。1.30秒才完成
+* `解决方案`：使用webpack插件，使用DLL缓存机制，将构建资源映像在电脑磁盘中，即使电脑关机开启，不影响缓存。
+* `原理过程`：第一次打包还是需要正常时间，打包后会将内容存储在映射表中、第二次启动则优先寻找缓存，有则取，无则构建打包（显著提速90%）
+* `实操代码`：
+  * 安装依赖：`npm install --save-dev hard-source-webpack-plugin `
+  * 配置文件中代码：
+  ```javascript
+    const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+
+    module.exports = {
+      // ......
+      plugins: [
+        new HardSourceWebpackPlugin() // <- 直接加入这行代码就行
+      ]
+    }
+   ```
 
